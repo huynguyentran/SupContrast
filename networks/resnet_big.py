@@ -144,11 +144,13 @@ class ViTEncoder(nn.Module):
     def __init__(self, pretrained=True):
         super(ViTEncoder, self).__init__()
         self.model = models.vision_transformer.vit_b_16(pretrained=pretrained)
-        self.model.head = nn.Identity()  # Remove classification layer
+
+        # Remove classification head properly
+        self.model.head = nn.Identity()
 
     def forward(self, x):
-        return self.model(x)  # Output shape: (batch_size, 768)
-
+        feat = self.model(x)  # Output shape: (batch_size, 768)
+        return feat
 
 model_dict = {
     'resnet18': [resnet18, 512],
