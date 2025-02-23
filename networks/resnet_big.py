@@ -162,19 +162,13 @@ class LinearBatchNorm(nn.Module):
         return x
 
 class SupConViT(nn.Module):
-    """ViT backbone + projection head for contrastive learning"""
     def __init__(self, name='vit_base', head='mlp', feat_dim=128):
         super(SupConViT, self).__init__()
-        
-        # Load ViT backbone
         model_fun, dim_in = model_dict[name]
         self.encoder = model_fun(pretrained=True)
-        
-        # Remove the classification head (replace it with an Identity layer)
-        self.encoder.heads = nn.Identity()  # This will remove the 1000 class output layer
-        
+        self.encoder.heads = nn.Identity()  
         if head == 'linear':
-            self.head = nn.Linear(dim_in, feat_dim)  # dim_in should match ViT output feature size
+            self.head = nn.Linear(dim_in, feat_dim)
         elif head == 'mlp':
             self.head = nn.Sequential(
                 nn.Linear(dim_in, dim_in),
@@ -185,8 +179,8 @@ class SupConViT(nn.Module):
             raise NotImplementedError('head not supported: {}'.format(head))
 
     def forward(self, x):
-        feat = self.encoder(x)  # This should now output features with shape (batch_size, dim_in)
-        feat = F.normalize(self.head(feat), dim=1)  # Apply the projection head
+        feat = self.encoder(x) 
+        feat = F.normalize(self.head(feat), dim=1) 
         return feat
 
 class SupConResNet(nn.Module):
