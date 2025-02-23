@@ -138,6 +138,7 @@ def resnet50(**kwargs):
 
 def resnet101(**kwargs):
     return ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
+    
 model_dict = {
     'resnet18': [resnet18, 512],
     'resnet34': [resnet34, 512],
