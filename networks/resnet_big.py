@@ -167,11 +167,17 @@ model_dict = {
     'resnet34': [resnet34, 512],
     'resnet50': [resnet50, 2048],
     'resnet101': [resnet101, 2048],
-    'vit_base': [lambda: ViTEncoder('vit_b_16'), 768],  # Base ViT
-    'vit_large': [lambda: ViTEncoder('vit_l_16'), 1024],  # Large ViT
-    'vit_huge': [lambda: ViTEncoder('vit_h_14'), 1280],  # Huge ViT
+    # 'vit_base': [lambda: ViTEncoder('vit_b_16'), 768],  # Base ViT
+    # 'vit_large': [lambda: ViTEncoder('vit_l_16'), 1024],  # Large ViT
+    # 'vit_huge': [lambda: ViTEncoder('vit_h_14'), 1280],  # Huge ViT
+    'vit_base': [models.vision_transformer.vit_b_16, 768],  # 768 is the feature size for ViT Base
+    'vit_large': [models.vision_transformer.vit_l_16, 1024]  # 1024 for ViT Large
 }
 
+# model_dict = {
+#     'vit_base': [models.vision_transformer.vit_b_16, 768],  # 768 is the feature size for ViT Base
+#     'vit_large': [models.vision_transformer.vit_l_16, 1024]  # 1024 for ViT Large
+# }
 
 class LinearBatchNorm(nn.Module):
     """Implements BatchNorm1d by BatchNorm2d, for SyncBN purpose"""
