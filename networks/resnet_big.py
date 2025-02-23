@@ -141,23 +141,35 @@ def resnet101(**kwargs):
 
 class ViTEncoder(nn.Module):
     """Vision Transformer (ViT) encoder without classification head."""
-    def __init__(self, pretrained=True):
+    def __init__(self, model_name='vit_b_16', pretrained=True):
         super(ViTEncoder, self).__init__()
-        self.model = models.vision_transformer.vit_b_16(pretrained=pretrained)
 
-        # Remove classification head properly
+        if model_name == 'vit_b_16':
+            self.model = models.vision_transformer.vit_b_16(pretrained=pretrained)
+            self.feature_dim = 768
+        elif model_name == 'vit_l_16':
+            self.model = models.vision_transformer.vit_l_16(pretrained=pretrained)
+            self.feature_dim = 1024
+        elif model_name == 'vit_h_14':
+            self.model = models.vision_transformer.vit_h_14(pretrained=pretrained)
+            self.feature_dim = 1280
+        else:
+            raise ValueError(f"Unsupported ViT model: {model_name}")
+
+        # Remove classification head
         self.model.head = nn.Identity()
 
     def forward(self, x):
-        feat = self.model(x)  # Output shape: (batch_size, 768)
-        return feat
+        return self.model(x)
 
 model_dict = {
     'resnet18': [resnet18, 512],
     'resnet34': [resnet34, 512],
     'resnet50': [resnet50, 2048],
     'resnet101': [resnet101, 2048],
-    'vit_base': [ViTEncoder, 768], 
+    'vit_base': [lambda: ViTEncoder('vit_b_16'), 768],  # Base ViT
+    'vit_large': [lambda: ViTEncoder('vit_l_16'), 1024],  # Large ViT
+    'vit_huge': [lambda: ViTEncoder('vit_h_14'), 1280],  # Huge ViT
 }
 
 
