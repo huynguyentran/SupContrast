@@ -145,6 +145,7 @@ model_dict = {
     'resnet50': [resnet50, 2048],
     'resnet101': [resnet101, 2048],
     # 'vit_small': [models.vision_transformer.vit_s_16, 384],
+    'vit_s_dino: [torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14_lc'), 384],
     'vit_base': [models.vision_transformer.vit_b_16, 768], 
     'vit_large': [models.vision_transformer.vit_l_16, 1024] 
 }
