@@ -168,7 +168,7 @@ class SupConViT(nn.Module):
     def __init__(self, name='vit_base', head='mlp', feat_dim=128):
         super(SupConViT, self).__init__()
         model_fun, dim_in = model_dict[name]
-        self.encoder = model_fun(pretrained=True)
+        self.encoder = model_fun(pretrained=True) if 'dino' not in name else model_fun
         self.encoder.heads = nn.Identity()  
         if head == 'linear':
             self.head = nn.Linear(dim_in, feat_dim)
