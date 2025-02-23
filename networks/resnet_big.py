@@ -210,6 +210,44 @@ class SupConModel(nn.Module):
         feat = F.normalize(self.head(feat), dim=1)  # Apply projection head
         return feat
 
+class SupConViT(nn.Module):
+    """ViT backbone + projection head for contrastive learning"""
+    def __init__(self, name='vit_base', head='mlp', feat_dim=128):
+        super(SupConViT, self).__init__()
+        
+        # Load ViT backbone
+        model_fun, dim_in = model_dict[name]
+        self.encoder = model_fun(pretrained=True)
+        
+        # Remove the classification head (replace it with an Identity layer)
+        self.encoder.heads = nn.Identity()  # This will remove the 1000 class output layer
+        
+        if head == 'linear':
+            self.head = nn.Linear(dim_in, feat_dim)  # dim_in should match ViT output feature size
+        elif head == 'mlp':
+            self.head = nn.Sequential(
+                nn.Linear(dim_in, dim_in),
+                nn.ReLU(inplace=True),
+                nn.Linear(dim_in, feat_dim)
+            )
+        else:
+            raise NotImplementedError('head not supported: {}'.format(head))
+
+    def forward(self, x):
+        feat = self.encoder(x)  # This should now output features with shape (batch_size, dim_in)
+        feat = F.normalize(self.head(feat), dim=1)  # Apply the projection head
+        return feat
+
+
+# Update model_dict to include the correct dimensions for the feature vector
+model_dict = {
+    'vit_base': [models.vision_transformer.vit_b_16, 768],  # 768 is the feature size for ViT Base
+    'vit_large': [models.vision_transformer.vit_l_16, 1024]  # 1024 for ViT Large
+}
+
+# Create model with ViT
+model = SupConViT(name='vit_base')  # Using ViT Base model
+
 
 class SupConResNet(nn.Module):
     """backbone + projection head"""
