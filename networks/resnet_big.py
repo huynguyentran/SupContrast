@@ -138,46 +138,15 @@ def resnet50(**kwargs):
 
 def resnet101(**kwargs):
     return ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
-
-class ViTEncoder(nn.Module):
-    """Vision Transformer (ViT) encoder without classification head."""
-    def __init__(self, model_name='vit_b_16', pretrained=True):
-        super(ViTEncoder, self).__init__()
-
-        if model_name == 'vit_b_16':
-            self.model = models.vision_transformer.vit_b_16(pretrained=pretrained)
-            self.feature_dim = 768
-        elif model_name == 'vit_l_16':
-            self.model = models.vision_transformer.vit_l_16(pretrained=pretrained)
-            self.feature_dim = 1024
-        elif model_name == 'vit_h_14':
-            self.model = models.vision_transformer.vit_h_14(pretrained=pretrained)
-            self.feature_dim = 1280
-        else:
-            raise ValueError(f"Unsupported ViT model: {model_name}")
-
-        # Remove classification head
-        self.model.head = nn.Identity()
-
-    def forward(self, x):
-        return self.model(x)
-
 model_dict = {
     'resnet18': [resnet18, 512],
     'resnet34': [resnet34, 512],
     'resnet50': [resnet50, 2048],
     'resnet101': [resnet101, 2048],
-    # 'vit_base': [lambda: ViTEncoder('vit_b_16'), 768],  # Base ViT
-    # 'vit_large': [lambda: ViTEncoder('vit_l_16'), 1024],  # Large ViT
-    # 'vit_huge': [lambda: ViTEncoder('vit_h_14'), 1280],  # Huge ViT
-    'vit_base': [models.vision_transformer.vit_b_16, 768],  # 768 is the feature size for ViT Base
-    'vit_large': [models.vision_transformer.vit_l_16, 1024]  # 1024 for ViT Large
+    'vit_base': [models.vision_transformer.vit_b_16, 768], 
+    'vit_large': [models.vision_transformer.vit_l_16, 1024] 
 }
 
-# model_dict = {
-#     'vit_base': [models.vision_transformer.vit_b_16, 768],  # 768 is the feature size for ViT Base
-#     'vit_large': [models.vision_transformer.vit_l_16, 1024]  # 1024 for ViT Large
-# }
 
 class LinearBatchNorm(nn.Module):
     """Implements BatchNorm1d by BatchNorm2d, for SyncBN purpose"""
@@ -191,30 +160,6 @@ class LinearBatchNorm(nn.Module):
         x = self.bn(x)
         x = x.view(-1, self.dim)
         return x
-
-
-class SupConModel(nn.Module):
-    """Backbone + Projection Head for both CNNs and ViTs."""
-    def __init__(self, name='resnet50', head='mlp', feat_dim=128):
-        super(SupConModel, self).__init__()
-        model_fun, dim_in = model_dict[name]
-        self.encoder = model_fun()  # ResNet or ViT
-
-        if head == 'linear':
-            self.head = nn.Linear(dim_in, feat_dim)
-        elif head == 'mlp':
-            self.head = nn.Sequential(
-                nn.Linear(dim_in, dim_in),  # 768 -> 768 for ViT
-                nn.ReLU(inplace=True),
-                nn.Linear(dim_in, feat_dim)  # 768 -> 128 projection
-            )
-        else:
-            raise NotImplementedError(f'head not supported: {head}')
-
-    def forward(self, x):
-        feat = self.encoder(x)  # Get features from backbone
-        feat = F.normalize(self.head(feat), dim=1)  # Apply projection head
-        return feat
 
 class SupConViT(nn.Module):
     """ViT backbone + projection head for contrastive learning"""
@@ -243,17 +188,6 @@ class SupConViT(nn.Module):
         feat = self.encoder(x)  # This should now output features with shape (batch_size, dim_in)
         feat = F.normalize(self.head(feat), dim=1)  # Apply the projection head
         return feat
-
-
-# Update model_dict to include the correct dimensions for the feature vector
-model_dict = {
-    'vit_base': [models.vision_transformer.vit_b_16, 768],  # 768 is the feature size for ViT Base
-    'vit_large': [models.vision_transformer.vit_l_16, 1024]  # 1024 for ViT Large
-}
-
-# Create model with ViT
-model = SupConViT(name='vit_base')  # Using ViT Base model
-
 
 class SupConResNet(nn.Module):
     """backbone + projection head"""
