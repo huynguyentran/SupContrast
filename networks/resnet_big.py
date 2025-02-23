@@ -139,13 +139,23 @@ def resnet50(**kwargs):
 def resnet101(**kwargs):
     return ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
 
+class ViTEncoder(nn.Module):
+    """Vision Transformer (ViT) encoder without classification head."""
+    def __init__(self, pretrained=True):
+        super(ViTEncoder, self).__init__()
+        self.model = models.vision_transformer.vit_b_16(pretrained=pretrained)
+        self.model.head = nn.Identity()  # Remove classification layer
+
+    def forward(self, x):
+        return self.model(x)  # Output shape: (batch_size, 768)
+
 
 model_dict = {
     'resnet18': [resnet18, 512],
     'resnet34': [resnet34, 512],
     'resnet50': [resnet50, 2048],
     'resnet101': [resnet101, 2048],
-    'vit_base': [models.vision_transformer.vit_b_16, 768],
+    'vit_base': [ViTEncoder, 768], 
 }
 
 
@@ -161,6 +171,30 @@ class LinearBatchNorm(nn.Module):
         x = self.bn(x)
         x = x.view(-1, self.dim)
         return x
+
+
+class SupConModel(nn.Module):
+    """Backbone + Projection Head for both CNNs and ViTs."""
+    def __init__(self, name='resnet50', head='mlp', feat_dim=128):
+        super(SupConModel, self).__init__()
+        model_fun, dim_in = model_dict[name]
+        self.encoder = model_fun()  # ResNet or ViT
+
+        if head == 'linear':
+            self.head = nn.Linear(dim_in, feat_dim)
+        elif head == 'mlp':
+            self.head = nn.Sequential(
+                nn.Linear(dim_in, dim_in),  # 768 -> 768 for ViT
+                nn.ReLU(inplace=True),
+                nn.Linear(dim_in, feat_dim)  # 768 -> 128 projection
+            )
+        else:
+            raise NotImplementedError(f'head not supported: {head}')
+
+    def forward(self, x):
+        feat = self.encoder(x)  # Get features from backbone
+        feat = F.normalize(self.head(feat), dim=1)  # Apply projection head
+        return feat
 
 
 class SupConResNet(nn.Module):
