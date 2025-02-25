@@ -145,7 +145,7 @@ model_dict = {
     'resnet50': [resnet50, 2048],
     'resnet101': [resnet101, 2048],
     # 'vit_small': [models.vision_transformer.vit_s_16, 384],
-    'vit_s_dino': [torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14'), 384],
+    'vit_s_dino': [torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14_reg'), 384],
     'vit_base': [models.vision_transformer.vit_b_16, 768], 
     'vit_large': [models.vision_transformer.vit_l_16, 1024] 
 }
@@ -168,7 +168,7 @@ class SupConViT(nn.Module):
     def __init__(self, name='vit_base', head='mlp', feat_dim=128):
         super(SupConViT, self).__init__()
         model_fun, dim_in = model_dict[name]
-        self.encoder = model_fun(pretrained=True) if 'dino' not in name else model_fun().backbone
+        self.encoder = model_fun(pretrained=True) if 'dino' not in name else model_fun()
 
         print(self.encoder.heads)
         self.encoder.heads = nn.Identity()  
