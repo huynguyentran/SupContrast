@@ -169,13 +169,10 @@ class SupConViT(nn.Module):
         super(SupConViT, self).__init__()
         model_fun, dim_in = model_dict[name]
         if 'dino' in name:
-            
             self.encoder = model_fun  
-            self.encoder = self.encoder.visual
         else:
             self.encoder = model_fun(pretrained=True)
 
-        print(self.encoder.heads)
         self.encoder.heads = nn.Identity()  
         if head == 'linear':
             self.head = nn.Linear(dim_in, feat_dim)
