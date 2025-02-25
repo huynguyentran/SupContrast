@@ -170,7 +170,7 @@ class SupConViT(nn.Module):
         model_fun, dim_in = model_dict[name]
         if 'dino' in name:
             
-            self.encoder = model_fun()  
+            self.encoder = model_fun  
             self.encoder = self.encoder.visual
         else:
             self.encoder = model_fun(pretrained=True)
