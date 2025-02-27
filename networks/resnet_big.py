@@ -147,8 +147,8 @@ model_dict = {
     # 'vit_small': [models.vision_transformer.vit_s_16, 384],
     'vit_s_dino': [torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14_reg'), 384],
     'vit_b_dino': [torch.hub.load('facebookresearch/dinov2', 'dinov2_vitb14_reg'), 768],
-    'vit_l_dino': [torch.hub.load('facebookresearch/dinov2', 'dinov2_vitl14_reg_lc'), 1024],
-    'vit_g_dino': [torch.hub.load('facebookresearch/dinov2', 'dinov2_vitg14_reg_lc'), 1536],
+    'vit_l_dino': [torch.hub.load('facebookresearch/dinov2', 'dinov2_vitl14_reg'), 1024],
+    'vit_g_dino': [torch.hub.load('facebookresearch/dinov2', 'dinov2_vitg14_reg'), 1536],
     'vit_base': [models.vision_transformer.vit_b_16, 768], 
     'vit_large': [models.vision_transformer.vit_l_16, 1024] 
 }
