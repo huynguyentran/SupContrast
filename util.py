@@ -81,7 +81,7 @@ def set_optimizer(opt, model):
         "sgd": optim.SGD(model.parameters(), lr=opt.learning_rate, momentum=opt.momentum, weight_decay=opt.weight_decay)
     }
 
-    optimizer = optimizers.get(opt.optimizer.lower())
+    optimizer = optimizers.get(opt.optimizer_name.lower())
     return optimizer
 
 
