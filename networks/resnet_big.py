@@ -333,7 +333,9 @@ class CrossAttViT(nn.Module):
         print(img2_att)
         feat_img1 = F.normalize(self.head(img1_att), dim=1)
         feat_img2 = F.normalize(self.head(img2_att), dim=1)
-        
+        print(feat_img1)
+        print(feat_img2)
+        print("stop")
         return feat_img1, feat_img2
 
         
