@@ -289,6 +289,42 @@ class LinearBatchNorm(nn.Module):
         x = x.view(-1, self.dim)
         return x
 
+class CrossAttViT(nn.Module):
+    def __init__(self, name='vit_base', head='mlp', feat_dim=128, method="SupCon"):
+        super(CrossAttViT, self).__init__()
+        model, dim_in = model_dict[name]
+        self.encoder = model
+        self.encoder.heads = nn.Identity()  
+        self.cross_atten = nn.BidirectionalCrossAttention(
+            dim = dim_in,
+            heads = 8,
+            dim_head = 64,
+            context_dim = dim_in
+        )
+                
+        if head == 'linear':
+            self.head = nn.Linear(dim_in, feat_dim)
+        elif head == 'mlp':
+            self.head = nn.Sequential(
+                nn.Linear(dim_in, dim_in),
+                nn.ReLU(inplace=True),
+                nn.Linear(dim_in, feat_dim)
+            )
+        
+    def forward(self, img1, img2):
+        img1_emb = self.encoder(img1)
+        img2_emb  =self.encoder(img2)
+        
+        img1_att,  img2_att = self.cross_atten(img1_emb, img2_emb, mask = None, context_mask = None )
+        
+        feat_img1 = F.normalize(self.head(img1_att), dim=1)
+        feat_img2 = F.normalize(self.head(img2_att), dim=1)
+        return   feat_img1, feat_img2 
+        
+        
+        #loss = sum f diagnosis + sum (1-i)
+        
+
 class SupConViT(nn.Module):
     def __init__(self, name='vit_base', head='mlp', feat_dim=128):
         super(SupConViT, self).__init__()
