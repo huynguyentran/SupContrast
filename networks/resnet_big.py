@@ -325,10 +325,12 @@ class CrossAttViT(nn.Module):
         if img1_emb.dim() == 2:
             img1_emb = img1_emb.unsqueeze(1)  # Convert [bsz, dim] -> [bsz, 1, dim]
             img2_emb = img2_emb.unsqueeze(1)
-
+            
         
         img1_att, img2_att = self.cross_atten(img1_emb, img2_emb, mask=None, context_mask=None)
-        
+
+        print(img1_att)
+        print(img2_att)
         feat_img1 = F.normalize(self.head(img1_att), dim=1)
         feat_img2 = F.normalize(self.head(img2_att), dim=1)
         
