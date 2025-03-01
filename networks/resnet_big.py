@@ -320,9 +320,15 @@ class CrossAttViT(nn.Module):
             )
         
     def forward(self, img1, img2):
-        
-        img1_emb = self.encoder(img1)
+
+        img1_emb = self.encoder(img1)  # Check if this is [bsz, dim]
         img2_emb = self.encoder(img2)
+        
+        # Add an extra token dimension if missing
+        if img1_emb.dim() == 2:
+            img1_emb = img1_emb.unsqueeze(1)  # Convert [bsz, dim] -> [bsz, 1, dim]
+            img2_emb = img2_emb.unsqueeze(1)
+
 
         print(img1_emb.shape)
         print(img2_emb.shape)
