@@ -48,8 +48,13 @@ class SupConLoss(nn.Module):
 
         # Compute logits
         # Ensure features have correct shape
+        print(f"[DEBUG] anchor_feature.shape: {anchor_feature.shape}")
+        print(f"[DEBUG] contrast_feature.shape: {contrast_feature.shape}")
         anchor_feature = anchor_feature.view(anchor_feature.shape[0], -1)  # [32, 128]
         contrast_feature = contrast_feature.view(contrast_feature.shape[0], -1)  # [32, 128]
+        print(f"[DEBUG] anchor_feature.shape: {anchor_feature.shape}")
+        print(f"[DEBUG] contrast_feature.shape: {contrast_feature.shape}")
+
         
         # Compute dot product
         anchor_dot_contrast = torch.div(torch.matmul(anchor_feature, contrast_feature.T), self.temperature)
