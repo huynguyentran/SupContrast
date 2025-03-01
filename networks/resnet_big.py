@@ -68,7 +68,6 @@ class BidirectionalCrossAttention(nn.Module):
     ):
         b, i, j, h, device = x.shape[0], x.shape[-2], context.shape[-2], self.heads, x.device
 
-        print(b, i, j, h, device)
         
         x = self.norm(x)
         context = self.context_norm(context)
@@ -76,12 +75,10 @@ class BidirectionalCrossAttention(nn.Module):
         # get shared query/keys and values for sequence and context
 
         qk, v = self.to_qk(x), self.to_v(x)
-        print(qk.shape)
-        print(v.shape)
+
         context_qk, context_v = self.context_to_qk(context), self.context_to_v(context)
 
-        print(context_qk.shape)
-        print(context_v.shape)
+  
         # split out head
 
         qk, context_qk, v, context_v = map(lambda t: rearrange(t, 'b n (h d) -> b h n d', h = h), (qk, context_qk, v, context_v))
@@ -329,9 +326,6 @@ class CrossAttViT(nn.Module):
             img1_emb = img1_emb.unsqueeze(1)  # Convert [bsz, dim] -> [bsz, 1, dim]
             img2_emb = img2_emb.unsqueeze(1)
 
-
-        print(img1_emb.shape)
-        print(img2_emb.shape)
         
         img1_att, img2_att = self.cross_atten(img1_emb, img2_emb, mask=None, context_mask=None)
         
