@@ -47,6 +47,11 @@ class SupConLoss(nn.Module):
             raise ValueError(f'Unknown mode: {self.contrast_mode}')
 
         # Compute logits
+        # Ensure features have correct shape
+        anchor_feature = anchor_feature.view(anchor_feature.shape[0], -1)  # [32, 128]
+        contrast_feature = contrast_feature.view(contrast_feature.shape[0], -1)  # [32, 128]
+        
+        # Compute dot product
         anchor_dot_contrast = torch.div(torch.matmul(anchor_feature, contrast_feature.T), self.temperature)
 
         
