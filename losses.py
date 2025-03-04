@@ -28,7 +28,6 @@ class SupConLoss(nn.Module):
 
         if torch.isnan(features).any():
             print("[ERROR] NaN detected in features before processing!")
-            return torch.tensor(float('nan'), device=device)
 
         batch_size = features.shape[0]
         if labels is not None and mask is not None:
@@ -59,7 +58,6 @@ class SupConLoss(nn.Module):
 
         if torch.isnan(anchor_feature).any():
             print("[ERROR] NaN detected in anchor_feature!")
-            return torch.tensor(float('nan'), device=device)
 
         # compute logits
         anchor_dot_contrast = torch.div(torch.matmul(anchor_feature, contrast_feature.T), self.temperature)
@@ -67,7 +65,6 @@ class SupConLoss(nn.Module):
 
         if torch.isnan(anchor_dot_contrast).any():
             print("[ERROR] NaN detected in anchor_dot_contrast!")
-            return torch.tensor(float('nan'), device=device)
 
         # for numerical stability
         logits_max, _ = torch.max(anchor_dot_contrast, dim=1, keepdim=True)
@@ -75,7 +72,6 @@ class SupConLoss(nn.Module):
 
         if torch.isnan(logits).any():
             print("[ERROR] NaN detected in logits!")
-            return torch.tensor(float('nan'), device=device)
 
         # tile mask
         mask = mask.repeat(anchor_count, contrast_count)
@@ -94,13 +90,13 @@ class SupConLoss(nn.Module):
 
         if torch.isnan(exp_logits).any():
             print("[ERROR] NaN detected in exp_logits!")
-            return torch.tensor(float('nan'), device=device)
+
 
         log_prob = logits - torch.log(exp_logits.sum(1, keepdim=True))
 
         if torch.isnan(log_prob).any():
             print("[ERROR] NaN detected in log_prob!")
-            return torch.tensor(float('nan'), device=device)
+ 
 
         # compute mean of log-likelihood over positive pairs
         mask_pos_pairs = mask.sum(1)
@@ -109,14 +105,13 @@ class SupConLoss(nn.Module):
 
         if torch.isnan(mean_log_prob_pos).any():
             print("[ERROR] NaN detected in mean_log_prob_pos!")
-            return torch.tensor(float('nan'), device=device)
+  
 
         # loss
         loss = - (self.temperature / self.base_temperature) * mean_log_prob_pos
         loss = loss.view(anchor_count, batch_size).mean()
-
+        
         if torch.isnan(loss).any():
-            print("[ERROR] NaN detected in loss!")
             return torch.tensor(float('nan'), device=device)
 
         return loss
