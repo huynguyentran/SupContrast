@@ -325,6 +325,8 @@ class CrossAttViT(nn.Module):
             bsz, dim_in = img1_emb.shape
             img1_emb = img1_emb.view(bsz, 14*14+1, dim_in) 
             img2_emb = img2_emb.view(bsz, 14*14+1, dim_in)
+        print(img1_emb.shape)
+        print(img2_emb.shape)
                 
         img1_att, img2_att = self.cross_atten(img1_emb, img2_emb, mask=None, context_mask=None)
         
