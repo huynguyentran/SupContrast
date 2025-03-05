@@ -105,6 +105,11 @@ class SupConLoss(nn.Module):
         # compute mean of log-likelihood over positive
         mask_pos_pairs = mask.sum(1)
         print("mask_pos_pairs:", mask_pos_pairs)
+
+        print("log_prob min:", log_prob.min().item(), "max:", log_prob.max().item(), "mean:", log_prob.mean().item())
+        print("exp_logits min:", exp_logits.min().item(), "max:", exp_logits.max().item(), "mean:", exp_logits.mean().item())
+        print("mask_pos_pairs:", mask_pos_pairs)
+
         
         mask_pos_pairs = torch.where(mask_pos_pairs < 1e-6, 1, mask_pos_pairs)
         mean_log_prob_pos = (mask * log_prob).sum(1) / mask_pos_pairs
