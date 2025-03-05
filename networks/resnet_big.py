@@ -320,7 +320,8 @@ class CrossAttViT(nn.Module):
 
         img1_emb = self.encoder(img1)  
         img2_emb = self.encoder(img2)
-        
+        print(img1_emb.shape)
+        print(img2_emb.shape)
         if img1_emb.dim() == 2:
             bsz, dim_in = img1_emb.shape
             img1_emb = img1_emb.view(bsz, 14*14+1, dim_in) 
