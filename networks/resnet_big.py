@@ -296,7 +296,7 @@ class CrossAttViT(nn.Module):
     def __init__(self, name='vit_l_dino', head='mlp', feat_dim=128, method="SupCon"):
         super(CrossAttViT, self).__init__()
         model, dim_in = model_dict[name]  
-        self.encoder = model
+        self.encoder = model.module
         self.encoder.heads = nn.Identity() 
         
         self.cross_atten = BidirectionalCrossAttention(
