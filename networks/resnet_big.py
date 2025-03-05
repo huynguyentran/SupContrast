@@ -297,6 +297,8 @@ class CrossAttViT(nn.Module):
         super(CrossAttViT, self).__init__()
         model, dim_in = model_dict[name]  
         self.encoder = model
+        print(self.encoder.transformer)
+
         self.encoder.heads = nn.Identity() 
         
         self.cross_atten = BidirectionalCrossAttention(
