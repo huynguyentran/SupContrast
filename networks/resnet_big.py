@@ -326,23 +326,11 @@ class CrossAttViT(nn.Module):
             img1_emb = img1_emb.unsqueeze(1)  # Convert [bsz, dim] -> [bsz, 1, dim]
             img2_emb = img2_emb.unsqueeze(1)
 
-        print(f"img1_emb min: {img1_emb.min()}, max: {img1_emb.max()}, mean: {img1_emb.mean()}, std: {img1_emb.std()}")
-        print(f"img2_emb min: {img2_emb.min()}, max: {img2_emb.max()}, mean: {img2_emb.mean()}, std: {img2_emb.std()}")
-        
-        if torch.isnan(img1_emb).any() or torch.isnan(img2_emb).any():
-            print("NaN detected in encoder output!")
-
         
         img1_att, img2_att = self.cross_atten(img1_emb, img2_emb, mask=None, context_mask=None)
         
         feat_img1 = F.normalize(self.head(img1_att), dim=1, eps=1e-8)
         feat_img2 = F.normalize(self.head(img2_att), dim=1, eps=1e-8)
-
-        print(f"img1_att min: {img1_att.min()}, max: {img1_att.max()}, mean: {img1_att.mean()}, std: {img1_att.std()}")
-        print(f"img2_att min: {img2_att.min()}, max: {img2_att.max()}, mean: {img2_att.mean()}, std: {img2_att.std()}")
-        
-        if torch.isnan(img1_att).any() or torch.isnan(img2_att).any():
-            print("NaN detected in cross-attention output!")
 
 
         return feat_img1, feat_img2
