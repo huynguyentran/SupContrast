@@ -105,6 +105,7 @@ class SupConLoss(nn.Module):
         # compute mean of log-likelihood over positive
         mask_pos_pairs = mask.sum(1)
         print("mask_pos_pairs:", mask_pos_pairs)
+        print("logits_mask unique values:", torch.unique(logits_mask))
 
        
         
