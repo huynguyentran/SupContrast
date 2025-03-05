@@ -297,10 +297,8 @@ class CrossAttViT(nn.Module):
         super(CrossAttViT, self).__init__()
         model, dim_in = model_dict[name]  
         self.encoder = model
-        print(self.encoder.get_intermediate_layers)
 
         self.encoder.heads = nn.Identity() 
-        print(self.encoder.get_intermediate_layers)
         self.cross_atten = BidirectionalCrossAttention(
             dim = dim_in,  
             heads = 8,
@@ -319,9 +317,10 @@ class CrossAttViT(nn.Module):
             )
         
     def forward(self, img1, img2):
-        print(dir(self.encoder))
-        img1_emb = self.encoder.get_intermediate_layers(img1, n=1)[0]
-        img2_emb = self.encoder.get_intermediate_layers(img2, n=1)[0]
+
+        img1_emb = self.encoder.module.get_intermediate_layers(img1, n=1)[0]
+        img2_emb = self.encoder.module.get_intermediate_layers(img2, n=1)[0]
+
         
         print("img1_emb shape:", img1_emb.shape)
         print("img2_emb shape:", img2_emb.shape)
