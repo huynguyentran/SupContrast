@@ -297,7 +297,7 @@ class CrossAttViT(nn.Module):
         super(CrossAttViT, self).__init__()
         model, dim_in = model_dict[name]  
         self.encoder = model
-        print(self.encoder.transformer)
+        print(dir(self.encoder))
 
         self.encoder.heads = nn.Identity() 
         
