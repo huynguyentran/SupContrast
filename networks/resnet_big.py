@@ -326,8 +326,8 @@ class CrossAttViT(nn.Module):
             img1_emb = img1_emb.unsqueeze(1)  
             img2_emb = img2_emb.unsqueeze(1)
 
-        assert img1_emb.shape == 3
-        assert img2_emb.shape == 3
+        print(img1_emb.shape)
+        print(img2_emb.shape)
         print(img1_emb, img2_emb)
             
         img1_att, img2_att = self.cross_atten(img1_emb, img2_emb, mask=None, context_mask=None)
