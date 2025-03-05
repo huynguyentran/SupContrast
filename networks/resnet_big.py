@@ -296,7 +296,7 @@ class CrossAttViT(nn.Module):
     def __init__(self, name='vit_l_dino', head='mlp', feat_dim=128, method="SupCon"):
         super(CrossAttViT, self).__init__()
         model, dim_in = model_dict[name]  
-        self.encoder = model.module
+        self.encoder = model
         self.encoder.heads = nn.Identity() 
         
         self.cross_atten = BidirectionalCrossAttention(
@@ -317,7 +317,7 @@ class CrossAttViT(nn.Module):
             )
         
     def forward(self, img1, img2):
-
+        print(dir(self.encoder))
         img1_emb = self.encoder.get_intermediate_layers(img1, n=1)[0]
         img2_emb = self.encoder.get_intermediate_layers(img2, n=1)[0]
         
