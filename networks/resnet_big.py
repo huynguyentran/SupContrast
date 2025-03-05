@@ -318,17 +318,12 @@ class CrossAttViT(nn.Module):
         
     def forward(self, img1, img2):
 
-        img1_emb = self.encoder(img1)  
-        img2_emb = self.encoder(img2)
-        print(img1_emb.shape)
-        print(img2_emb.shape)
-        if img1_emb.dim() == 2:
-            bsz, dim_in = img1_emb.shape
-            img1_emb = img1_emb.view(bsz, 14*14+1, dim_in) 
-            img2_emb = img2_emb.view(bsz, 14*14+1, dim_in)
-        print(img1_emb.shape)
-        print(img2_emb.shape)
-                
+        img1_emb = self.encoder.get_intermediate_layers(img1, n=1)[0]
+        img2_emb = self.encoder.get_intermediate_layers(img2, n=1)[0]
+        
+        print("img1_emb shape:", img1_emb.shape)
+        print("img2_emb shape:", img2_emb.shape)
+                    
         img1_att, img2_att = self.cross_atten(img1_emb, img2_emb, mask=None, context_mask=None)
         
         feat_img1 = F.normalize(self.head(img1_att), dim=1, eps=1e-8)
