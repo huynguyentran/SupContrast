@@ -54,8 +54,12 @@ class SupConLoss(nn.Module):
         else:
             mask = mask.float().to(device)
 
-        contrast_count = features.shape[1]
+         contrast_count = features.shape[1]
+        print("contrast_count:", contrast_count)
+        
         contrast_feature = torch.cat(torch.unbind(features, dim=1), dim=0)
+        print("contrast_feature shape:", contrast_feature.shape)
+        
         if self.contrast_mode == 'one':
             anchor_feature = features[:, 0]
             anchor_count = 1
@@ -64,17 +68,25 @@ class SupConLoss(nn.Module):
             anchor_count = contrast_count
         else:
             raise ValueError('Unknown mode: {}'.format(self.contrast_mode))
+        
+        print("anchor_feature shape:", anchor_feature.shape)
+        print("anchor_count:", anchor_count)
 
         # compute logits
         anchor_dot_contrast = torch.div(
             torch.matmul(anchor_feature, contrast_feature.T),
             self.temperature)
+        print("anchor_dot_contrast shape:", anchor_dot_contrast.shape)
+        
         # for numerical stability
         logits_max, _ = torch.max(anchor_dot_contrast, dim=1, keepdim=True)
         logits = anchor_dot_contrast - logits_max.detach()
-
+        print("logits shape:", logits.shape)
+        
         # tile mask
         mask = mask.repeat(anchor_count, contrast_count)
+        print("mask shape:", mask.shape)
+        
         # mask-out self-contrast cases
         logits_mask = torch.scatter(
             torch.ones_like(mask),
@@ -83,24 +95,24 @@ class SupConLoss(nn.Module):
             0
         )
         mask = mask * logits_mask
+        print("Updated mask shape:", mask.shape)
 
         # compute log_prob
         exp_logits = torch.exp(logits) * logits_mask
         log_prob = logits - torch.log(exp_logits.sum(1, keepdim=True))
+        print("log_prob shape:", log_prob.shape)
 
         # compute mean of log-likelihood over positive
-        # modified to handle edge cases when there is no positive pair
-        # for an anchor point. 
-        # Edge case e.g.:- 
-        # features of shape: [4,1,...]
-        # labels:            [0,1,1,2]
-        # loss before mean:  [nan, ..., ..., nan] 
         mask_pos_pairs = mask.sum(1)
+        print("mask_pos_pairs:", mask_pos_pairs)
+        
         mask_pos_pairs = torch.where(mask_pos_pairs < 1e-6, 1, mask_pos_pairs)
         mean_log_prob_pos = (mask * log_prob).sum(1) / mask_pos_pairs
+        print("mean_log_prob_pos shape:", mean_log_prob_pos.shape)
 
         # loss
         loss = - (self.temperature / self.base_temperature) * mean_log_prob_pos
         loss = loss.view(anchor_count, batch_size).mean()
+        print("loss:", loss.item())
 
         return loss
