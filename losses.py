@@ -92,10 +92,10 @@ class SupConLoss(nn.Module):
         # compute log_prob
         exp_logits = torch.exp(logits) * logits_mask
         
-        # log_prob = logits - torch.log(exp_logits.sum(1, keepdim=True))
-        denominator = exp_logits.sum(1, keepdim=True)
-        denominator = torch.where(denominator == 0, torch.tensor(1.0, device=denominator.device), denominator)
-        log_prob = logits - torch.log(denominator)
+        log_prob = logits - torch.log(exp_logits.sum(1, keepdim=True))
+        # denominator = exp_logits.sum(1, keepdim=True)
+        # denominator = torch.where(denominator == 0, torch.tensor(1.0, device=denominator.device), denominator)
+        # log_prob = logits - torch.log(denominator)
 
         # compute mean of log-likelihood over positive
         mask_pos_pairs = mask.sum(1)
