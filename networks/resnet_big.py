@@ -316,10 +316,9 @@ class CrossAttViT(nn.Module):
                 nn.Linear(dim_in, feat_dim)
             )
         
-    def forward(self, img1, img2):
-
-        img1_emb = self.encoder.module.get_intermediate_layers(img1, n=1)[0]
-        img2_emb = self.encoder.module.get_intermediate_layers(img2, n=1)[0]
+    def forward(self, images, bsz):
+        imgs_emb = self.encoder.module.get_intermediate_layers(images, n=1)[0]
+        img1_emb, img2_emb = torch.split(imgs_emb, [bsz, bsz], dim=0)
                     
         img1_att, img2_att = self.cross_atten(img1_emb, img2_emb, mask=None, context_mask=None)
         
