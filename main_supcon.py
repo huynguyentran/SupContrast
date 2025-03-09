@@ -167,10 +167,14 @@ def set_loader(opt):
                                             transform=TwoCropTransform(train_transform))
     else:
         raise ValueError(opt.dataset)
-
+    selected_classes = {"Pseudopapilledema", "Papilledema"}
+    print(selected_classes)
+    print(train_dataset.classes)
+    filtered_indices = [i for i, (_, label) in enumerate(train_dataset) if train_dataset.classes[label] in selected_classes]
+    filtered_dataset = torch.utils.data.Subset(train_dataset, filtered_indices)
     train_sampler = None
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=opt.batch_size, shuffle=(train_sampler is None),
+        filtered_dataset, batch_size=opt.batch_size, shuffle=(train_sampler is None),
         num_workers=opt.num_workers, pin_memory=True, sampler=train_sampler)
 
     return train_loader
